@@ -3,6 +3,7 @@ const router = require("express").Router();
 const { UserModel } = require("../models");
 const jwt = require("jsonwebtoken");
 const User = require("../models/user");
+const bcrypt = require("bcryptjs");
 
 router.post("/register", async (req,res) => {
 
@@ -10,10 +11,10 @@ router.post("/register", async (req,res) => {
     try {
         const User = await UserModel.create({
             email,
-            password
+            password: bcrypt.hashSync(password, 13),
         });
 
-    let token = jwt.sign({id: User.id}, "i_am_secret", {expiresIn: 60 * 60 * 24});
+    let token = jwt.sign({id: User.id}, process.env.JWT_SECRET, {expiresIn: 60 * 60 * 24});
 
         res.status(201).json({
             message: "User successfully registered",
@@ -43,17 +44,25 @@ router.post("/login", async (req,res) => {
         },
     });
 
-    let token = jwt.sign({id: loginUser.id}, "i_am_secret", {expiresIn: 60 * 60 * 24});
-
     if (loginUser) {
-    res.status(200).json({
-        message: "User successfully logged in",
-        user: loginUser,
-        sessionToken: token
-    });
+        let passwordComparison = await bcrypt.compare(password, loginUser.password);
+
+        if (passwordComparison) {
+            let token = jwt.sign({id: loginUser.id}, process.env.JWT_SECRET, {expiresIn: 60 * 60 * 24});
+        
+            res.status(200).json({
+                message: "User successfully logged in",
+                user: loginUser,
+                sessionToken: token
+            });
+        } else {
+            res.status(401).json({
+                message: "Incorrect email or password"
+            })
+        }   
     } else {
         res.status(401).json({
-            message: "login failed"
+            message: "Incorrect email or password"
         });
     } 
     } catch (err) {
