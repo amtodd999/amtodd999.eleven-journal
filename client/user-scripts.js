@@ -76,17 +76,33 @@ fetch(`http://localhost:3000/user/register`, {
     /* *************************
     *** USER LOGOUT ***
     ************************** */
-    // function userLogout() {
-    //  localStorage.setItem('SessionToken', undefined);
-    // console.log(`SessionToken --> ${localStorage.sessionToken}`);
-    // tokenChecker();
-    // }
-    
-    
+    function userLogout() {
+     localStorage.setItem('SessionToken', undefined);
+    console.log(`SessionToken --> ${localStorage.sessionToken}`);
+    tokenChecker();
+    }
+        
     /* *************************
      *** TOKEN CHECKER FUNCTION ***
     ************************** */
     function tokenChecker() {
-     console.log('tokenChecker Function Called')
+        console.log('tokenChecker Function Called');
+
+        let display = document.getElementById('journals');
+        let header = document.createElement('h5');
+        let accessToken = localStorage.getItem('SessionToken');
+        let alertText = "Log in or sign up to get started!";
+
+        for (let i = 0; i < display.childNodes.length; i++) {
+            display.removeChild(display.firstChild);
+        }
+
+        if (accessToken === 'undefined') {
+            display.appendChild(header);
+            header.textContent = alertText;
+            header.setAttribute('id', 'defaultLogin');
+        } else {
+            null
+        }
     }
     tokenChecker()

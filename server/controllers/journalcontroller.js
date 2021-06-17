@@ -132,7 +132,7 @@ router.delete("/delete/:id", validateJWT, async (req, res) => {
                 owner: ownerId
             }
         };
-        await JournalModel.destoy(query);
+        await JournalModel.destroy(query);
         res.status(200).json({ message: "Journal Entry Removed" });
     } catch (err) {
         res.status(500).json({ error: err });
